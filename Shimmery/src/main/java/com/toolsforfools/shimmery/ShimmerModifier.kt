@@ -5,6 +5,8 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -93,68 +95,71 @@ private fun Modifier.shimmerModifierLogic(
     } else {
         0f
     }
-    return this then
-            clip(shimmerConfiguration.shape) then
-            drawWithCache {
-                contentSize = size
-                with(shimmerConfiguration) {
+    return run {
+        if (enabled) {
+            this then clip(shimmerConfiguration.shape)
+        } else
+            this
+    } then drawWithCache {
+        contentSize = size
+        with(shimmerConfiguration) {
 
-                    val shimmerBrush = if (shimmerType.withGradiant) {
-                        val shimmerColors = listOf(
-                            Color.LightGray.copy(alpha = 0.6f),
-                            Color.LightGray.copy(alpha = 0.2f),
-                            Color.LightGray.copy(alpha = 0.6f),
+            val shimmerBrush = if (shimmerType.withGradiant) {
+                val shimmerColors = listOf(
+                    Color.LightGray.copy(alpha = 0.6f),
+                    Color.LightGray.copy(alpha = 0.2f),
+                    Color.LightGray.copy(alpha = 0.6f),
+                )
+                when (gradiantType) {
+                    GradiantType.Linear -> {
+                        Brush.linearGradient(
+                            shimmerColors,
+                            start = Offset(startOffset, startOffset),
+                            end = Offset(startOffset * 2f, startOffset * 2)
                         )
-                        when (gradiantType) {
-                            GradiantType.Linear -> {
-                                Brush.linearGradient(
-                                    shimmerColors,
-                                    start = Offset(startOffset, startOffset),
-                                    end = Offset(startOffset * 2f, startOffset * 2)
-                                )
-                            }
+                    }
 
-                            GradiantType.HORIZONTAL -> {
-                                Brush.horizontalGradient(
-                                    shimmerColors,
-                                    startX = startOffset,
-                                    endX = startOffset * 2f
-                                )
-                            }
+                    GradiantType.HORIZONTAL -> {
+                        Brush.horizontalGradient(
+                            shimmerColors,
+                            startX = startOffset,
+                            endX = startOffset * 2f
+                        )
+                    }
 
-                            GradiantType.VERTICAL -> {
-                                Brush.verticalGradient(
-                                    shimmerColors,
-                                    startY = startOffset,
-                                    endY = startOffset * 2f
-                                )
-                            }
-                        }
+                    GradiantType.VERTICAL -> {
+                        Brush.verticalGradient(
+                            shimmerColors,
+                            startY = startOffset,
+                            endY = startOffset * 2f
+                        )
+                    }
+                }
+            } else {
+                null
+            }
+            onDrawWithContent {
+                if (enabled) {
+                    if (shimmerType.withGradiant) {
+                        drawRect(
+                            shimmerBrush!!,
+                            alpha = alpha,
+                            size = size,
+                            style = Fill,
+                        )
                     } else {
-                        null
+                        drawRect(
+                            Color.Gray,
+                            alpha = alpha,
+                        )
                     }
-                    onDrawWithContent {
-                        if (enabled) {
-                            if (shimmerType.withGradiant) {
-                                drawRect(
-                                    shimmerBrush!!,
-                                    alpha = alpha,
-                                    size = size,
-                                    style = Fill,
-                                )
-                            } else {
-                                drawRect(
-                                    Color.Gray,
-                                    alpha = alpha,
-                                )
-                            }
-                        } else {
-                            drawContent()
-                        }
-                    }
-
+                } else {
+                    drawContent()
                 }
             }
+
+        }
+    }
 }
 
 
@@ -172,13 +177,23 @@ private fun ShimmerPreview() {
             Row {
                 Box(modifier = Modifier
                     .size(60.dp)
-                    .shimmer(true) {}) {
+                    .shimmer(false) {
+                        shape = CircleShape
+                    }
+                    .background(Color.Red)
+                ) {
 
                 }
                 Spacer(modifier = Modifier.width(30.dp))
                 Box(modifier = Modifier
                     .size(600.dp)
-                    .shimmer(true) {}) {
+                    .clickable {
+                        println("XXXX")
+                    }
+                    .shimmer(true) {
+//                        gradiantAnimationSpec = tween(3000)
+                        shimmerType = ShimmerType.WITH_ALPHA
+                    }) {
 
                 }
             }
