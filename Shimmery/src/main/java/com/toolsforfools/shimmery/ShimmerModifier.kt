@@ -4,7 +4,6 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,28 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -68,33 +59,38 @@ private fun Modifier.shimmerModifierLogic(
 ): Modifier {
     val infiniteTransition = rememberInfiniteTransition(label = "")
 
-    val alpha = if (shimmerConfiguration.shimmerType.withAlpha) {
-        infiniteTransition.animateFloat(
-            initialValue = 0.5f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                shimmerConfiguration.alphaAnimationSpec,
-                RepeatMode.Reverse
-            ), label = "Alpha animation"
-        ).value
-    } else {
-        1f
-    }
+    val alpha =
+        if (shimmerConfiguration.shimmerType.withAlpha && !shimmerConfiguration.isAlphaAnimationSpecUpdated) {
+            infiniteTransition.animateFloat(
+                initialValue = 0.5f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    shimmerConfiguration.alphaAnimationSpec,
+                    RepeatMode.Reverse
+                ), label = "Alpha animation"
+            ).value
+        } else {
+            1f
+        }
     var contentSize by remember {
         mutableStateOf(Size.Zero)
     }
-    val startOffset = if (shimmerConfiguration.shimmerType.withGradiant) {
-        infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = contentSize.width,
-            animationSpec = infiniteRepeatable(
-                shimmerConfiguration.gradiantAnimationSpec,
-                RepeatMode.Restart
-            ), label = "Offset animation"
-        ).value
-    } else {
-        0f
-    }
+    val startOffset =
+        if (shimmerConfiguration.shimmerType.withGradiant && !shimmerConfiguration.isGradiantAnimationSpecUpdated) {
+            infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = contentSize.width,
+                animationSpec = infiniteRepeatable(
+                    shimmerConfiguration.gradiantAnimationSpec,
+                    RepeatMode.Restart
+                ), label = "Offset animation"
+            ).value
+        } else {
+            0f
+        }
+
+
+
     return run {
         if (enabled) {
             this then clip(shimmerConfiguration.shape)
@@ -102,62 +98,65 @@ private fun Modifier.shimmerModifierLogic(
             this
     } then drawWithCache {
         contentSize = size
-        with(shimmerConfiguration) {
 
-            val shimmerBrush = if (shimmerType.withGradiant) {
-                val shimmerColors = listOf(
-                    Color.LightGray.copy(alpha = 0.6f),
-                    Color.LightGray.copy(alpha = 0.2f),
-                    Color.LightGray.copy(alpha = 0.6f),
-                )
-                when (gradiantType) {
-                    GradiantType.Linear -> {
-                        Brush.linearGradient(
-                            shimmerColors,
-                            start = Offset(startOffset, startOffset),
-                            end = Offset(startOffset * 2f, startOffset * 2)
-                        )
-                    }
 
-                    GradiantType.HORIZONTAL -> {
-                        Brush.horizontalGradient(
-                            shimmerColors,
-                            startX = startOffset,
-                            endX = startOffset * 2f
-                        )
-                    }
+        val shimmerBrush =
+            with(shimmerConfiguration) {
+                if (shimmerType.withGradiant) {
+                    val shimmerColors = listOf(
+                        Color.LightGray.copy(alpha = 0.8f),
+                        Color.LightGray.copy(alpha = 0.2f),
+                        Color.LightGray.copy(alpha = 0.8f),
+                    )
+                    when (gradiantType) {
+                        GradiantType.LINEAR -> {
+                            Brush.linearGradient(
+                                shimmerColors,
+                                start = Offset(startOffset, startOffset),
+                                end = Offset(startOffset * 2f, startOffset * 2)
+                            )
+                        }
 
-                    GradiantType.VERTICAL -> {
-                        Brush.verticalGradient(
-                            shimmerColors,
-                            startY = startOffset,
-                            endY = startOffset * 2f
-                        )
-                    }
-                }
-            } else {
-                null
-            }
-            onDrawWithContent {
-                if (enabled) {
-                    if (shimmerType.withGradiant) {
-                        drawRect(
-                            shimmerBrush!!,
-                            alpha = alpha,
-                            size = size,
-                            style = Fill,
-                        )
-                    } else {
-                        drawRect(
-                            Color.Gray,
-                            alpha = alpha,
-                        )
+                        GradiantType.HORIZONTAL -> {
+                            Brush.horizontalGradient(
+                                shimmerColors,
+                                startX = startOffset,
+                                endX = startOffset * 2f
+                            )
+                        }
+
+                        GradiantType.VERTICAL -> {
+                            Brush.verticalGradient(
+                                shimmerColors,
+                                startY = startOffset,
+                                endY = startOffset * 2f
+                            )
+                        }
                     }
                 } else {
-                    drawContent()
+                    null
                 }
             }
 
+
+        onDrawWithContent {
+            if (enabled) {
+                if (shimmerConfiguration.shimmerType.withGradiant) {
+                    drawRect(
+                        shimmerBrush!!,
+                        alpha = alpha,
+                        size = size,
+                        style = Fill,
+                    )
+                } else {
+                    drawRect(
+                        Color.LightGray.copy(alpha = 0.8f),
+                        alpha = alpha,
+                    )
+                }
+            } else {
+                drawContent()
+            }
         }
     }
 }
