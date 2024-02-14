@@ -9,10 +9,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
@@ -27,31 +32,40 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.google.android.material.shape.ShapePath
+import com.toolsforfools.shimmery.shimmerableContainer.ShimmerContainer
+import com.toolsforfools.shimmery.shimmerableContainer.shimmerInContainer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShimmerConfigurationExample() {
+private fun ShimmerConfigurationExample() {
 
     var isShimmeringEnabled by rememberSaveable {
         mutableStateOf(true)
@@ -221,7 +235,7 @@ fun ShimmerConfigurationExample() {
 
 @Preview
 @Composable
-fun ShimmerConfigurationExamplePreview() {
+private fun ShimmerConfigurationExamplePreview() {
     ShimmerConfigurationExample()
 }
 
@@ -237,7 +251,7 @@ val appShimmerConfiguration by lazy {
 }
 
 @Composable
-fun ShimmerableComposable(modifier: Modifier = Modifier) {
+private fun ShimmerableComposable(modifier: Modifier = Modifier) {
     var isEnabled by remember {
         mutableStateOf(false)
     }
@@ -250,7 +264,7 @@ fun ShimmerableComposable(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun AsyncImageShimmeringExample(modifier: Modifier = Modifier) {
+private fun AsyncImageShimmeringExample(modifier: Modifier = Modifier) {
 
     Box {
         ElevatedCard(
@@ -278,6 +292,56 @@ fun AsyncImageShimmeringExample(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun AsyncImageShimmeringExamplePreview() {
+private fun AsyncImageShimmeringExamplePreview() {
     AsyncImageShimmeringExample()
+}
+
+@PreviewScreenSizes
+@Composable
+private fun ShimmerContainerPreview() {
+    Surface {
+        ShimmerContainer(enabled = true, shimmerConfiguration = shimmerConfiguration {
+            gradiantType = GradiantType.LINEAR
+        }) {
+            LazyColumn(content = {
+                items(10) {
+                    ShimmerItemPreview(enabled = true, animationSpec = tween(1000))
+                }
+            })
+        }
+    }
+}
+
+@Composable
+private fun ShimmerItemPreview(
+    enabled: Boolean,
+    animationSpec: DurationBasedAnimationSpec<Float>
+) {
+    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            painter = painterResource(id = R.drawable.image_nature),
+            contentDescription = "Example image",
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .shimmerInContainer(enabled),
+            contentScale = ContentScale.Crop,
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(
+                text = "Hello world",
+                Modifier
+                    .fillMaxWidth()
+                    .shimmerInContainer(enabled)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "This is the long description",
+                Modifier
+                    .fillMaxWidth()
+                    .shimmerInContainer(enabled)
+            )
+        }
+    }
 }

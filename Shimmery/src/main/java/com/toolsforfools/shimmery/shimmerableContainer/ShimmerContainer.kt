@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.toolsforfools.shimmery.GradiantType
 import com.toolsforfools.shimmery.ShimmerConfiguration
 
 
@@ -39,6 +40,7 @@ internal data class ShimmerContainerInfo(
     val alpha: Float,
     val layoutCoordinates: LayoutCoordinates?,
     val shimmerConfiguration: ShimmerConfiguration,
+    val enabled: Boolean
 )
 
 internal val LocalShimmeringContainerInfo = compositionLocalOf<ShimmerContainerInfo> {
@@ -50,6 +52,7 @@ internal val LocalShimmeringContainerInfo = compositionLocalOf<ShimmerContainerI
 
 @Composable
 fun ShimmerContainer(
+    enabled: Boolean,
     modifier: Modifier = Modifier,
     shimmerConfiguration: ShimmerConfiguration = ShimmerConfiguration(),
     content: @Composable BoxScope.() -> Unit
@@ -72,7 +75,7 @@ fun ShimmerContainer(
                 targetValue = 1f,
                 animationSpec = infiniteRepeatable(
                     shimmerConfiguration.alphaAnimationSpec,
-                    RepeatMode.Reverse
+                    RepeatMode.Reverse,
                 ), label = "Alpha animation"
             ).value
         } else {
@@ -84,7 +87,8 @@ fun ShimmerContainer(
             startOffset,
             alpha,
             layoutCoordinates,
-            shimmerConfiguration
+            shimmerConfiguration,
+            enabled
         )
     ) {
         Box(modifier.onPlaced {
@@ -97,20 +101,20 @@ fun ShimmerContainer(
 @Composable
 fun ShimmerContainerPreview() {
     Box(Modifier.padding(30.dp)) {
-        ShimmerContainer {
+        ShimmerContainer(false) {
             Column {
                 Row {
                     Box(
                         Modifier
                             .weight(1f)
                             .aspectRatio(2f)
-                            .shimmerInContainer(true)
+                            .shimmerInContainer()
                     )
                     Box(
                         Modifier
                             .weight(1f)
                             .aspectRatio(2f)
-                            .shimmerInContainer(true)
+                            .shimmerInContainer()
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Box(

@@ -1,9 +1,5 @@
 package com.toolsforfools.shimmery.shimmerableContainer
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -22,12 +17,11 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
 import com.toolsforfools.shimmery.GradiantType
 import com.toolsforfools.shimmery.ShimmerConfiguration
-import com.toolsforfools.shimmery.utils.maxOffset
 
 
 @Composable
 fun Modifier.shimmerInContainer(
-    enabled: Boolean,
+    enabled: Boolean? = null,
     shimmerConfiguration: ShimmerConfiguration? = null
 ): Modifier {
 
@@ -45,8 +39,9 @@ fun Modifier.shimmerInContainer(
 
     return this then shimmerInContainerModifierLogic(
         shimmerConfiguration = shimmerConfiguration ?: shimmerContainerInfo.shimmerConfiguration,
-        enabled = enabled,
-        startOffset = positionInContainer,
+        enabled = enabled ?: shimmerContainerInfo.enabled,
+        gradiantStartOffset = startOffset,
+        positionInContainer = positionInContainer,
         alpha = shimmerContainerInfo.alpha
     ).onPlaced {
         layoutCoordinates = it
@@ -57,7 +52,8 @@ fun Modifier.shimmerInContainer(
 private fun Modifier.shimmerInContainerModifierLogic(
     shimmerConfiguration: ShimmerConfiguration,
     enabled: Boolean,
-    startOffset: Offset,
+    gradiantStartOffset: Float,
+    positionInContainer: Offset,
     alpha: Float,
 ): Modifier {
 
@@ -81,24 +77,30 @@ private fun Modifier.shimmerInContainerModifierLogic(
                         GradiantType.LINEAR -> {
                             Brush.linearGradient(
                                 shimmerColors,
-                                start = startOffset,
-                                end = startOffset * 2f
+                                start = Offset(
+                                    gradiantStartOffset - positionInContainer.x,
+                                    gradiantStartOffset - positionInContainer.y
+                                ),
+                                end = Offset(
+                                    gradiantStartOffset * 2 - positionInContainer.x,
+                                    gradiantStartOffset * 2 - positionInContainer.y,
+                                )
                             )
                         }
 
                         GradiantType.HORIZONTAL -> {
                             Brush.horizontalGradient(
                                 shimmerColors,
-                                startX = startOffset.x,
-                                endX = startOffset.x * 2f
+                                startX = gradiantStartOffset - positionInContainer.x,
+                                endX = gradiantStartOffset * 2f - positionInContainer.x
                             )
                         }
 
                         GradiantType.VERTICAL -> {
                             Brush.verticalGradient(
                                 shimmerColors,
-                                startY = startOffset.y,
-                                endY = startOffset.y * 2f
+                                startY = gradiantStartOffset - positionInContainer.y,
+                                endY = gradiantStartOffset * 2f - positionInContainer.y
                             )
                         }
                     }
@@ -106,7 +108,6 @@ private fun Modifier.shimmerInContainerModifierLogic(
                     null
                 }
             }
-
 
         onDrawWithContent {
             if (enabled) {
