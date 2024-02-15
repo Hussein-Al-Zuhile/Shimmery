@@ -2,13 +2,13 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AsyncImageShimmeringExamplePreview">
-        <State />
-      </entry>
-      <entry key="ShimmerConfigurationExamplePreview">
+      <entry key="ShimmerContainerConfigurationOverridingPreview">
         <State />
       </entry>
       <entry key="ShimmerContainerModifierPreview">
+        <State />
+      </entry>
+      <entry key="ShimmerContainerOverridingPreview">
         <State />
       </entry>
       <entry key="ShimmerContainerPreview">

@@ -1,4 +1,4 @@
-package com.toolsforfools.shimmery
+package com.toolsforfools.shimmery.shimmerIndividual
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -31,15 +31,22 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import com.toolsforfools.shimmery.shimmerConfiguration.GradientType
+import com.toolsforfools.shimmery.shimmerConfiguration.LocalShimmerConfiguration
+import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfiguration
+import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerType
 
 @Composable
 fun Modifier.shimmer(
     enabled: Boolean,
-    shimmerConfigurationBuilder: @Composable (ShimmerConfiguration.() -> Unit)? = null
+    shimmerConfigurationBuilder: @Composable (ShimmerConfiguration.() -> Unit)
 ): Modifier {
-    val shimmerConfiguration = remember { ShimmerConfiguration() }
 
-    shimmerConfigurationBuilder?.let { shimmerConfiguration.it() }
+    val shimmerConfiguration =
+        LocalShimmerConfiguration.current.apply {
+            this.shimmerConfigurationBuilder()
+        }
+
 
     return shimmerModifierLogic(shimmerConfiguration, enabled)
 }
@@ -47,9 +54,12 @@ fun Modifier.shimmer(
 @Composable
 fun Modifier.shimmer(
     enabled: Boolean,
-    shimmerConfiguration: ShimmerConfiguration
+    shimmerConfiguration: ShimmerConfiguration = LocalShimmerConfiguration.current
 ): Modifier {
-    return shimmerModifierLogic(shimmerConfiguration, enabled)
+    return shimmerModifierLogic(
+        shimmerConfiguration,
+        enabled
+    )
 }
 
 @Composable
@@ -76,12 +86,12 @@ private fun Modifier.shimmerModifierLogic(
         mutableStateOf(Size.Zero)
     }
     val startOffset =
-        if (shimmerConfiguration.shimmerType.withGradiant && !shimmerConfiguration.isGradiantAnimationSpecUpdated) {
+        if (shimmerConfiguration.shimmerType.withGradient && !shimmerConfiguration.isGradientAnimationSpecUpdated) {
             infiniteTransition.animateFloat(
                 initialValue = 0f,
                 targetValue = contentSize.width,
                 animationSpec = infiniteRepeatable(
-                    shimmerConfiguration.gradiantAnimationSpec,
+                    shimmerConfiguration.gradientAnimationSpec,
                     RepeatMode.Restart
                 ), label = "Offset animation"
             ).value
@@ -102,14 +112,14 @@ private fun Modifier.shimmerModifierLogic(
 
         val shimmerBrush =
             with(shimmerConfiguration) {
-                if (shimmerType.withGradiant) {
+                if (shimmerType.withGradient) {
                     val shimmerColors = listOf(
                         Color.LightGray.copy(alpha = 0.8f),
                         Color.LightGray.copy(alpha = 0.2f),
                         Color.LightGray.copy(alpha = 0.8f),
                     )
-                    when (gradiantType) {
-                        GradiantType.LINEAR -> {
+                    when (gradientType) {
+                        GradientType.LINEAR -> {
                             Brush.linearGradient(
                                 shimmerColors,
                                 start = Offset(startOffset, startOffset),
@@ -117,7 +127,7 @@ private fun Modifier.shimmerModifierLogic(
                             )
                         }
 
-                        GradiantType.HORIZONTAL -> {
+                        GradientType.HORIZONTAL -> {
                             Brush.horizontalGradient(
                                 shimmerColors,
                                 startX = startOffset,
@@ -125,7 +135,7 @@ private fun Modifier.shimmerModifierLogic(
                             )
                         }
 
-                        GradiantType.VERTICAL -> {
+                        GradientType.VERTICAL -> {
                             Brush.verticalGradient(
                                 shimmerColors,
                                 startY = startOffset,
@@ -141,7 +151,7 @@ private fun Modifier.shimmerModifierLogic(
 
         onDrawWithContent {
             if (enabled) {
-                if (shimmerConfiguration.shimmerType.withGradiant) {
+                if (shimmerConfiguration.shimmerType.withGradient) {
                     drawRect(
                         shimmerBrush!!,
                         alpha = alpha,
@@ -186,14 +196,10 @@ private fun ShimmerPreview() {
                 Spacer(modifier = Modifier.width(30.dp))
                 Box(modifier = Modifier
                     .size(600.dp)
-                    .clickable {
-                        println("XXXX")
-                    }
+
                     .shimmer(true) {
-//                        gradiantAnimationSpec = tween(3000)
                         shimmerType = ShimmerType.WITH_ALPHA
                     }) {
-
                 }
             }
         }

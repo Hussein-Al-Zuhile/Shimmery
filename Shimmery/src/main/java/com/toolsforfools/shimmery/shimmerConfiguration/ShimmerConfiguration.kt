@@ -1,23 +1,24 @@
-package com.toolsforfools.shimmery
+package com.toolsforfools.shimmery.shimmerConfiguration
 
 import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 
 data class ShimmerConfiguration(
     var shimmerType: ShimmerType = ShimmerType.WITH_ALPHA_AND_GRADIANT,
-    var gradiantType: GradiantType = GradiantType.HORIZONTAL,
+    var gradientType: GradientType = GradientType.HORIZONTAL,
     var shape: Shape = RoundedCornerShape(16.dp)
 ) {
-    var gradiantAnimationSpec: DurationBasedAnimationSpec<Float> = tween(1200)
+    var gradientAnimationSpec: DurationBasedAnimationSpec<Float> = tween(1200)
         set(value) {
-            isGradiantAnimationSpecUpdated = field != value
+            isGradientAnimationSpecUpdated = field != value
             field = value
         }
-    internal var isGradiantAnimationSpecUpdated = false
+    internal var isGradientAnimationSpecUpdated = false
         get() {
             val currentValue = field
             field = false
@@ -50,10 +51,12 @@ enum class ShimmerType {
     val withAlpha: Boolean
         get() = this != WITH_GRADIANT
 
-    val withGradiant: Boolean
+    val withGradient: Boolean
         get() = this != WITH_ALPHA
 }
 
-enum class GradiantType {
+enum class GradientType {
     LINEAR, HORIZONTAL, VERTICAL,
 }
+
+val LocalShimmerConfiguration = compositionLocalOf { ShimmerConfiguration() }

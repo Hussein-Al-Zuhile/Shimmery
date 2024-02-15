@@ -1,4 +1,4 @@
-package com.toolsforfools.shimmery.shimmerableContainer
+package com.toolsforfools.shimmery.shimmerContainer
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -23,16 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.toolsforfools.shimmery.GradiantType
-import com.toolsforfools.shimmery.ShimmerConfiguration
+import com.toolsforfools.shimmery.shimmerConfiguration.LocalShimmerConfiguration
+import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfiguration
 
 
 internal data class ShimmerContainerInfo(
@@ -54,9 +48,11 @@ internal val LocalShimmeringContainerInfo = compositionLocalOf<ShimmerContainerI
 fun ShimmerContainer(
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    shimmerConfiguration: ShimmerConfiguration = ShimmerConfiguration(),
+    shimmerConfiguration: ShimmerConfiguration? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
+
+    val selectedShimmerConfiguration = shimmerConfiguration ?: LocalShimmerConfiguration.current
 
     var layoutCoordinates by remember {
         mutableStateOf<LayoutCoordinates?>(null)
@@ -69,12 +65,12 @@ fun ShimmerContainer(
         animationSpec = infiniteRepeatable(tween(2000)), label = ""
     )
     val alpha =
-        if (shimmerConfiguration.shimmerType.withAlpha && !shimmerConfiguration.isAlphaAnimationSpecUpdated) {
+        if (selectedShimmerConfiguration.shimmerType.withAlpha && !selectedShimmerConfiguration.isAlphaAnimationSpecUpdated) {
             infiniteTransition.animateFloat(
                 initialValue = 0.5f,
                 targetValue = 1f,
                 animationSpec = infiniteRepeatable(
-                    shimmerConfiguration.alphaAnimationSpec,
+                    selectedShimmerConfiguration.alphaAnimationSpec,
                     RepeatMode.Reverse,
                 ), label = "Alpha animation"
             ).value
@@ -87,7 +83,7 @@ fun ShimmerContainer(
             startOffset,
             alpha,
             layoutCoordinates,
-            shimmerConfiguration,
+            selectedShimmerConfiguration,
             enabled
         )
     ) {
