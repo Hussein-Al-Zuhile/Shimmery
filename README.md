@@ -22,7 +22,7 @@ To integrate Shimmary into your Android project, follow these steps:
 2. Add the following dependency in your app's `build.gradle.kts`:
 
     ```gradle
-    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.5.0")
+    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.2.1")
     ```
 ## Usage
 
