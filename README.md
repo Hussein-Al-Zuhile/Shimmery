@@ -22,7 +22,7 @@ To integrate Shimmary into your Android project, follow these steps:
 2. Add the following dependency in your app's `build.gradle.kts`:
 
     ```gradle
-    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.0.1")
+    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.5.0")
     ```
 ## Usage
 
@@ -30,15 +30,33 @@ Here's a simple example demonstrating what configurations you can edit in Shimme
 
 https://github.com/Hussein-Al-Zuhile/Shimmery/assets/43495888/f7ec3bf6-5ac4-4736-897e-021c2598ccf6
 
+### Singleton Shimmer Configuration Hierarchy across the app
+The library uses `LocalShimmerConfiguration` as a configuration for the shimmering by default.
+You can provide it using `CompositionLocalProvier` Like this, and override it wherever you want in the code:
+```kotlin
+CompositionLocalProvider(
+    LocalShimmerConfiguration provides shimmerConfiguration {
+        // Some configuration updates
+    }) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+}
+```
+## Types of Shimmer Applying
+You can use it on a group of composables or on an individual composable 
 ### 1. Applying Shimmering for a group of composables
 1. Wrap all the composables you want to add shimmering effect to in a single `ShimmerContainer`
 2. Add `Modifier.shimmerInContainer` to the composables you want to add the effect to.
 Voila! You have a shimmerable screen.
 ```kotlin
+@Preview
 @Composable
 fun ShimmerContainerPreview() {
     Box(Modifier.padding(30.dp)) {
-        ShimmerContainer(true) {
+        ShimmerContainer(enabled = true) {
             Column {
                 Row {
                     Box(
@@ -71,6 +89,8 @@ fun ShimmerContainerPreview() {
     }
 }
 ```
+
+https://github.com/Hussein-Al-Zuhile/Shimmery/assets/43495888/6091a750-485b-4229-be38-d8d377806220
 
 #### Partial Unshimmering (Optional):
 Imagine a use-case where the screen has two network APIs, you can cover the two sections in one container and unshimmer the loaded sections independently when each one of them succeed.
@@ -105,33 +125,6 @@ Image(
     contentDescription = "Example image"
 )
 ```
-### Singleton Configuration Support
-You can also create your singleton configuration and save it wherever you want to avoid creating multiple configurations if it is the same shimmering for the whole application, create a `ShimmerConfiguration` object and pass it as a second parameter to the modifier.
-```kotlin
-val appShimmerConfiguration by lazy {
-    ShimmerConfiguration(
-        shimmerType = ShimmerType.WITH_ALPHA_AND_GRADIANT,
-        gradientType = GradientType.VERTICAL,
-        shape = RoundedCornerShape(16.dp),
-    ).apply {
-        alphaAnimationSpec = tween(1000)
-        gradientAnimationSpec = tween(1000)
-    }
-}
-
-@Composable
-fun ShimmerableComposable(modifier: Modifier = Modifier) {
-    var isEnabled by remember {
-        mutableStateOf(false)
-    }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .shimmer(isEnabled, appShimmerConfiguration)) {
-    }
-}
-```
-
 ## Feedback and Stars 🌟
 * If you find Shimmary useful, we'd appreciate your feedback and a **star** on GitHub! Your support helps us improve and maintain the library.
 * **Give Feedback:** Share your thoughts, report issues, or suggest improvements [here](https://github.com/Hussein-Al-Zuhile/Shimmery/issues/new).
