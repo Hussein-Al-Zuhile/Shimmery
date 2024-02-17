@@ -47,9 +47,9 @@ private fun ShimmerContainerPartialShimmeringExample() {
     }
 
     LaunchedEffect(key1 = Unit, block = {
-        delay(3000)
+        delay(7000)
         isFirstApiLoading = false
-        delay(3000)
+        delay(7000)
         isSecondApiLoading = false
     })
 

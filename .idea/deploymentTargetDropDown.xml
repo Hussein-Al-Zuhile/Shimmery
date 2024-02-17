@@ -2,21 +2,6 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="ShimmerContainerConfigurationOverridingPreview">
-        <State />
-      </entry>
-      <entry key="ShimmerContainerModifierPreview">
-        <State />
-      </entry>
-      <entry key="ShimmerContainerOverridingPreview">
-        <State />
-      </entry>
-      <entry key="ShimmerContainerPreview">
-        <State />
-      </entry>
-      <entry key="ShimmerContainerPreview (1)">
-        <State />
-      </entry>
       <entry key="app">
         <State />
       </entry>

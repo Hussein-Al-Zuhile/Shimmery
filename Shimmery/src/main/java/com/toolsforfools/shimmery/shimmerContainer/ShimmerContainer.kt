@@ -97,7 +97,7 @@ fun ShimmerContainer(
 @Composable
 fun ShimmerContainerPreview() {
     Box(Modifier.padding(30.dp)) {
-        ShimmerContainer(false) {
+        ShimmerContainer(enabled = true) {
             Column {
                 Row {
                     Box(
@@ -106,6 +106,16 @@ fun ShimmerContainerPreview() {
                             .aspectRatio(2f)
                             .shimmerInContainer()
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .aspectRatio(2f)
+                            .shimmerInContainer()
+                    )
+                }
+                Row {
+                    Spacer(modifier = Modifier.weight(1f))
                     Box(
                         Modifier
                             .weight(1f)
@@ -113,27 +123,6 @@ fun ShimmerContainerPreview() {
                             .shimmerInContainer()
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .aspectRatio(2f)
-                            .shimmerInContainer(true)
-                    )
-                }
-                Row {
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .aspectRatio(2f)
-                            .shimmerInContainer(true)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .aspectRatio(2f)
-                            .shimmerInContainer(true)
-                    )
                 }
 
             }
