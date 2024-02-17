@@ -75,7 +75,6 @@ publishing {
             groupId = "com.github.toolsForFools"
             artifactId = "shimmery"
             version = "1.2.0"
-            artifact("$")
             afterEvaluate {
                 from(components["release"])
             }
