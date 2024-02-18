@@ -15,7 +15,7 @@ To integrate Shimmary into your Android project, follow these steps:
 		 repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 		 repositories {
 		    mavenCentral()
-		    maven { url 'https://jitpack.io' }
+		    maven { url = URI("https://jitpack.io") }
 		 }
     }
     ```
