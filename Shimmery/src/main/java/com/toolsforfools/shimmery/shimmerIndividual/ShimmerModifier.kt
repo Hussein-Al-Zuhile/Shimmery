@@ -5,11 +5,11 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,16 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import com.toolsforfools.shimmery.shimmerConfiguration.GradientType
 import com.toolsforfools.shimmery.shimmerConfiguration.LocalShimmerConfiguration
 import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfiguration
@@ -82,14 +83,17 @@ private fun Modifier.shimmerModifierLogic(
         } else {
             1f
         }
-    var contentSize by remember {
+    var shimmerSize by remember {
+        mutableStateOf(Size.Zero)
+    }
+    var composableSize by remember {
         mutableStateOf(Size.Zero)
     }
     val startOffset =
         if (shimmerConfiguration.shimmerType.withGradient && !shimmerConfiguration.isGradientAnimationSpecUpdated) {
             infiniteTransition.animateFloat(
                 initialValue = 0f,
-                targetValue = contentSize.width,
+                targetValue = shimmerSize.width,
                 animationSpec = infiniteRepeatable(
                     shimmerConfiguration.gradientAnimationSpec,
                     RepeatMode.Restart
@@ -99,75 +103,87 @@ private fun Modifier.shimmerModifierLogic(
             0f
         }
 
-
-
-    return run {
-        if (enabled) {
-            this then clip(shimmerConfiguration.shape)
-        } else
-            this
-    } then drawWithCache {
-        contentSize = size
-
-
-        val shimmerBrush =
-            with(shimmerConfiguration) {
-                if (shimmerType.withGradient) {
-                    val shimmerColors = listOf(
-                        Color.LightGray.copy(alpha = 0.8f),
-                        Color.LightGray.copy(alpha = 0.2f),
-                        Color.LightGray.copy(alpha = 0.8f),
-                    )
-                    when (gradientType) {
-                        GradientType.LINEAR -> {
-                            Brush.linearGradient(
-                                shimmerColors,
-                                start = Offset(startOffset, startOffset),
-                                end = Offset(startOffset * 2f, startOffset * 2)
-                            )
-                        }
-
-                        GradientType.HORIZONTAL -> {
-                            Brush.horizontalGradient(
-                                shimmerColors,
-                                startX = startOffset,
-                                endX = startOffset * 2f
-                            )
-                        }
-
-                        GradientType.VERTICAL -> {
-                            Brush.verticalGradient(
-                                shimmerColors,
-                                startY = startOffset,
-                                endY = startOffset * 2f
-                            )
-                        }
+    val shimmerBrush =
+        with(shimmerConfiguration) {
+            if (shimmerType.withGradient) {
+                val shimmerColors = listOf(
+                    Color.LightGray.copy(alpha = 0.8f),
+                    Color.LightGray.copy(alpha = 0.2f),
+                    Color.LightGray.copy(alpha = 0.8f),
+                )
+                when (gradientType) {
+                    GradientType.LINEAR -> {
+                        Brush.linearGradient(
+                            shimmerColors,
+                            start = Offset(startOffset, startOffset),
+                            end = Offset(startOffset * 2f, startOffset * 2)
+                        )
                     }
-                } else {
-                    null
-                }
-            }
 
+                    GradientType.HORIZONTAL -> {
+                        Brush.horizontalGradient(
+                            shimmerColors,
+                            startX = startOffset,
+                            endX = startOffset * 2f
+                        )
+                    }
 
-        onDrawWithContent {
-            if (enabled) {
-                if (shimmerConfiguration.shimmerType.withGradient) {
-                    drawRect(
-                        shimmerBrush!!,
-                        alpha = alpha,
-                        size = size,
-                        style = Fill,
-                    )
-                } else {
-                    drawRect(
-                        Color.LightGray.copy(alpha = 0.8f),
-                        alpha = alpha,
-                    )
+                    GradientType.VERTICAL -> {
+                        Brush.verticalGradient(
+                            shimmerColors,
+                            startY = startOffset,
+                            endY = startOffset * 2f
+                        )
+                    }
                 }
             } else {
-                drawContent()
+                null
             }
         }
+
+    if (enabled) {
+        Box(this) {
+            Box(modifier = Modifier
+                .run {
+                    shimmerConfiguration.width?.let {
+                        width(it.dp)
+                    } ?: width(composableSize.width.dp)
+                }
+                .run {
+                    shimmerConfiguration.height?.let {
+                        height(it.dp)
+                    } ?: height(composableSize.height.dp)
+                }
+                .align(alignment = shimmerConfiguration.alignment)
+                .padding(shimmerConfiguration.padding)
+                .run {
+                    if (shimmerConfiguration.shimmerType.withAlpha) {
+                        alpha(alpha)
+                    } else
+                        this
+                }
+                .run {
+                    if (shimmerConfiguration.shimmerType.withGradient)
+                        background(shimmerBrush!!, shimmerConfiguration.shape)
+                    else {
+                        background(
+                            Color.LightGray.copy(alpha = 0.8f),
+                            shimmerConfiguration.shape
+                        )
+                    }
+                }
+                .onGloballyPositioned {
+                    shimmerSize = it.size.toSize()
+                })
+        }
+    }
+
+
+    return Modifier.drawWithContent {
+        composableSize = size
+        println(size)
+        if (!enabled)
+            drawContent()
     }
 }
 

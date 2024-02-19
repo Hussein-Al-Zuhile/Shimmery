@@ -7,21 +7,26 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +36,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachIndexed
+import coil.compose.AsyncImage
 import com.toolsforfools.shimmery.R
 import com.toolsforfools.shimmery.shimmerConfiguration.GradientType
 import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerType
@@ -52,6 +62,9 @@ private fun ShimmerConfigurationExample() {
     var shimmerType by remember {
         mutableStateOf(ShimmerType.WITH_ALPHA_AND_GRADIANT)
     }
+    var alignment by remember {
+        mutableStateOf(Alignment.Center)
+    }
     var gradientType by remember {
         mutableStateOf(GradientType.HORIZONTAL)
     }
@@ -63,6 +76,15 @@ private fun ShimmerConfigurationExample() {
     }
     var alphaAnimationSpec by remember {
         mutableStateOf<DurationBasedAnimationSpec<Float>>(tween(1000))
+    }
+    var padding by remember {
+        mutableStateOf(PaddingValues(0.dp))
+    }
+    var width by remember {
+        mutableStateOf<Int?>(null)
+    }
+    var height by remember {
+        mutableStateOf<Int?>(null)
     }
 
     Column(
@@ -77,17 +99,21 @@ private fun ShimmerConfigurationExample() {
                 .fillMaxWidth()
                 .aspectRatio(2f)
         ) {
-            Image(
+            AsyncImage(
                 modifier = Modifier
                     .fillMaxSize()
                     .shimmer(isShimmeringEnabled) {
-                        this.shimmerType = ShimmerType.WITH_ALPHA_AND_GRADIANT
-                        this.gradientType = GradientType.LINEAR
-                        this.shape = RoundedCornerShape(16.dp)
-                        this.gradientAnimationSpec = tween(1000)
-                        this.alphaAnimationSpec = tween(1300)
+                        this.shimmerType = shimmerType
+                        this.gradientType = gradientType
+                        this.shape = shape
+                        this.height = height
+                        this.width = width
+                        this.gradientAnimationSpec = gradientAnimationSpec
+                        this.alphaAnimationSpec = alphaAnimationSpec
+                        this.padding = padding
+                        this.alignment = alignment
                     },
-                painter = painterResource(id = R.drawable.image_nature),
+                model = "",
                 contentDescription = "Example image"
             )
         }
@@ -97,6 +123,54 @@ private fun ShimmerConfigurationExample() {
                 checked = isShimmeringEnabled,
                 onCheckedChange = { isShimmeringEnabled = it })
             Text(text = "Is shimmering enabled")
+        }
+
+        Text(text = "Padding ${padding.calculateBottomPadding().value}")
+        Slider(value = padding.calculateBottomPadding().value, onValueChange = {
+            padding = PaddingValues(it.dp)
+        }, valueRange = 0f..100f)
+
+        Text(text = "Width $width")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = width == null,
+                onCheckedChange = { width = null })
+            Text(text = "Set width null")
+        }
+        Slider(value = width?.toFloat() ?: 0f, onValueChange = {
+            width = it.toInt()
+        }, valueRange = 0f..100f)
+
+        Text(text = "height $height")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = height == null,
+                onCheckedChange = { height = null })
+            Text(text = "Set height null")
+        }
+        Slider(value = height?.toFloat() ?: 0f, onValueChange = {
+            height = it.toInt()
+        }, valueRange = 0f..100f)
+
+        Text(text = "Alignment Type", style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.selectableGroup()) {
+            listOf<Alignment>(
+                Alignment.Center,
+                Alignment.TopStart,
+                Alignment.BottomEnd,
+                BiasAlignment(0.5f, -0.5f)
+            ).fastForEachIndexed { index, it ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = it == alignment, onClick = { alignment = it })
+                    val text = when (index) {
+                        0 -> "Center"
+                        1 -> "Top Start"
+                        2 -> "Bottom End"
+                        else -> "Generic Alignment (BiasAlignment(0.5f,-0.5f))"
+                    }
+                    Text(text = text)
+                }
+            }
         }
 
         Text(text = "Shimmer Type", style = MaterialTheme.typography.titleMedium)
@@ -189,7 +263,7 @@ private fun ShimmerConfigurationExample() {
             }
         }
         Column(Modifier.selectableGroup()) {
-            listOf<DurationBasedAnimationSpec<Float>>(
+            listOf(
                 tween(1000),
                 tween(3000),
                 snap(2000),
@@ -212,7 +286,7 @@ private fun ShimmerConfigurationExample() {
     }
 }
 
-@Preview
+@PreviewScreenSizes
 @Composable
 private fun ShimmerConfigurationExamplePreview() {
     ShimmerConfigurationExample()

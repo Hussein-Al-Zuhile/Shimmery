@@ -2,16 +2,23 @@ package com.toolsforfools.shimmery.shimmerConfiguration
 
 import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 
 data class ShimmerConfiguration(
     var shimmerType: ShimmerType = ShimmerType.WITH_ALPHA_AND_GRADIANT,
     var gradientType: GradientType = GradientType.HORIZONTAL,
-    var shape: Shape = RoundedCornerShape(16.dp)
+    var shape: Shape = RoundedCornerShape(16.dp),
+    var padding: PaddingValues = PaddingValues(0.dp),
+    var width: Int? = null,
+    var height: Int? = null,
+    var alignment: Alignment = Alignment.Center,
 ) {
     var gradientAnimationSpec: DurationBasedAnimationSpec<Float> = tween(1200)
         set(value) {
