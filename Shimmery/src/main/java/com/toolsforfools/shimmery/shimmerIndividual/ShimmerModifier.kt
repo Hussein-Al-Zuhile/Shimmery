@@ -22,7 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -105,16 +107,11 @@ private fun Modifier.shimmerModifierLogic(
 
     val shimmerBrush =
         with(shimmerConfiguration) {
-            if (shimmerType.withGradient) {
-                val shimmerColors = listOf(
-                    Color.LightGray.copy(alpha = 0.8f),
-                    Color.LightGray.copy(alpha = 0.2f),
-                    Color.LightGray.copy(alpha = 0.8f),
-                )
+            if (shimmerType.withGradient && enabled) {
                 when (gradientType) {
                     GradientType.LINEAR -> {
                         Brush.linearGradient(
-                            shimmerColors,
+                            gradientColors,
                             start = Offset(startOffset, startOffset),
                             end = Offset(startOffset * 2f, startOffset * 2)
                         )
@@ -122,15 +119,15 @@ private fun Modifier.shimmerModifierLogic(
 
                     GradientType.HORIZONTAL -> {
                         Brush.horizontalGradient(
-                            shimmerColors,
+                            gradientColors,
                             startX = startOffset,
-                            endX = startOffset * 2f
+                            endX = startOffset * 2f,
                         )
                     }
 
                     GradientType.VERTICAL -> {
                         Brush.verticalGradient(
-                            shimmerColors,
+                            gradientColors,
                             startY = startOffset,
                             endY = startOffset * 2f
                         )
@@ -156,6 +153,19 @@ private fun Modifier.shimmerModifierLogic(
                 }
                 .align(alignment = shimmerConfiguration.alignment)
                 .padding(shimmerConfiguration.padding)
+                .clip(shimmerConfiguration.shape)
+                .run {
+                    shimmerConfiguration.backgroundPainter?.run {
+                        paint(
+                            painter,
+                            sizeToIntrinsics,
+                            alignment,
+                            contentScale,
+                            this.alpha,
+                            colorFilter
+                        )
+                    } ?: this
+                }
                 .run {
                     if (shimmerConfiguration.shimmerType.withAlpha) {
                         alpha(alpha)
@@ -164,13 +174,13 @@ private fun Modifier.shimmerModifierLogic(
                 }
                 .run {
                     if (shimmerConfiguration.shimmerType.withGradient)
-                        background(shimmerBrush!!, shimmerConfiguration.shape)
-                    else {
+                        background(shimmerBrush!!)
+                    else if (shimmerConfiguration.shimmerType.withAlpha) {
                         background(
-                            Color.LightGray.copy(alpha = 0.8f),
-                            shimmerConfiguration.shape
+                            shimmerConfiguration.alphaColor,
                         )
-                    }
+                    } else
+                        this
                 }
                 .onGloballyPositioned {
                     shimmerSize = it.size.toSize()

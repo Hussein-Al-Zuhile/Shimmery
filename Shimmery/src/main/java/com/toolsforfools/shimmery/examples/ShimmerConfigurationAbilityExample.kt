@@ -4,7 +4,6 @@ import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,15 +12,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -38,17 +34,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import coil.compose.AsyncImage
 import com.toolsforfools.shimmery.R
 import com.toolsforfools.shimmery.shimmerConfiguration.GradientType
+import com.toolsforfools.shimmery.shimmerConfiguration.PainterElement
 import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerType
 import com.toolsforfools.shimmery.shimmerIndividual.shimmer
 
@@ -59,8 +55,11 @@ private fun ShimmerConfigurationExample() {
     var isShimmeringEnabled by rememberSaveable {
         mutableStateOf(true)
     }
+    var isPlaceholderAdded by rememberSaveable {
+        mutableStateOf(false)
+    }
     var shimmerType by remember {
-        mutableStateOf(ShimmerType.WITH_ALPHA_AND_GRADIANT)
+        mutableStateOf<ShimmerType>(ShimmerType.WITH_ALPHA_AND_GRADIANT)
     }
     var alignment by remember {
         mutableStateOf(Alignment.Center)
@@ -97,7 +96,7 @@ private fun ShimmerConfigurationExample() {
         Surface(
             Modifier
                 .fillMaxWidth()
-                .aspectRatio(2f)
+                .aspectRatio(1.8f)
         ) {
             AsyncImage(
                 modifier = Modifier
@@ -108,10 +107,21 @@ private fun ShimmerConfigurationExample() {
                         this.shape = shape
                         this.height = height
                         this.width = width
-                        this.gradientAnimationSpec = gradientAnimationSpec
+                        this.gradientAnimationSpec = tween(2000)
                         this.alphaAnimationSpec = alphaAnimationSpec
                         this.padding = padding
                         this.alignment = alignment
+                        gradientColors = listOf(
+                            Color.LightGray.copy(alpha = 0.8f),
+                            Color.LightGray.copy(alpha = 0.2f),
+                            Color.LightGray.copy(alpha = 0.8f),
+                        )
+                        alphaColor = Color.Yellow
+                        backgroundPainter =
+                            if (isPlaceholderAdded)
+                                PainterElement(
+                                    painter = painterResource(id = R.drawable.placeholder_image_loading),
+                                ) else null
                     },
                 model = "",
                 contentDescription = "Example image"
@@ -122,7 +132,14 @@ private fun ShimmerConfigurationExample() {
             Checkbox(
                 checked = isShimmeringEnabled,
                 onCheckedChange = { isShimmeringEnabled = it })
-            Text(text = "Is shimmering enabled")
+            Text(text = "Is shimmering enabled", style = MaterialTheme.typography.titleMedium)
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = isPlaceholderAdded,
+                onCheckedChange = { isPlaceholderAdded = it })
+            Text(text = "Is placeholder added", style = MaterialTheme.typography.titleMedium)
         }
 
         Text(text = "Padding ${padding.calculateBottomPadding().value}")
@@ -130,18 +147,18 @@ private fun ShimmerConfigurationExample() {
             padding = PaddingValues(it.dp)
         }, valueRange = 0f..100f)
 
-        Text(text = "Width $width")
+        Text(text = "Width $width", style = MaterialTheme.typography.titleMedium)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = width == null,
                 onCheckedChange = { width = null })
-            Text(text = "Set width null")
+            Text(text = "Set width null",)
         }
         Slider(value = width?.toFloat() ?: 0f, onValueChange = {
             width = it.toInt()
         }, valueRange = 0f..100f)
 
-        Text(text = "height $height")
+        Text(text = "height $height", style = MaterialTheme.typography.titleMedium)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = height == null,
@@ -175,10 +192,10 @@ private fun ShimmerConfigurationExample() {
 
         Text(text = "Shimmer Type", style = MaterialTheme.typography.titleMedium)
         Column(Modifier.selectableGroup()) {
-            ShimmerType.entries.forEach {
+            ShimmerType.values().forEach {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = it == shimmerType, onClick = { shimmerType = it })
-                    Text(text = it.name)
+                    Text(text = it.javaClass.name)
                 }
             }
         }
@@ -286,7 +303,7 @@ private fun ShimmerConfigurationExample() {
     }
 }
 
-@PreviewScreenSizes
+@Preview
 @Composable
 private fun ShimmerConfigurationExamplePreview() {
     ShimmerConfigurationExample()
