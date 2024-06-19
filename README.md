@@ -1,4 +1,4 @@
-# Shimmary Android Jetpack Compose Library
+# Shimmery Android Jetpack Compose Library
 
 ## Introduction
 
@@ -7,7 +7,7 @@ Shimmery is an Android library designed to allow you add configurable shimmering
 ## Installation
 Latest version: [![](https://jitpack.io/v/Hussein-Al-Zuhile/Shimmery.svg)](https://jitpack.io/#Hussein-Al-Zuhile/Shimmery)
 
-To integrate Shimmary into your Android project, follow these steps:
+To integrate Shimmery into your Android project, follow these steps:
 
 1. Add Jitpack.io repository to your repositories if it's not exist; in your `settings.gradle.kts`:
     ```gradle
@@ -126,7 +126,7 @@ Image(
 )
 ```
 ## Feedback and Stars 🌟
-* If you find Shimmary useful, we'd appreciate your feedback and a **star** on GitHub! Your support helps us improve and maintain the library.
+* If you find Shimmery useful, we'd appreciate your feedback and a **star** on GitHub! Your support helps us improve and maintain the library.
 * **Give Feedback:** Share your thoughts, report issues, or suggest improvements [here](https://github.com/Hussein-Al-Zuhile/Shimmery/issues/new).
 
 ## Contact Information
