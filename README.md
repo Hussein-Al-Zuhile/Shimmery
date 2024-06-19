@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Shimmary is an Android library designed to allow you add configurable shimmering effect to any composable you have, very easily.
+Shimmery is an Android library designed to allow you add configurable shimmering effect to any composable you have, very easily.
 
 ## Installation
 Latest version: [![](https://jitpack.io/v/Hussein-Al-Zuhile/Shimmery.svg)](https://jitpack.io/#Hussein-Al-Zuhile/Shimmery)
@@ -133,5 +133,6 @@ Image(
 
 For any questions or farther information, feel free to contact me:
 * **Email:** hosenzuh@gmail.com
-* **Phone:** +963991039529
+* **Phone:** +971589877331
 * **Linkedin:** https://www.linkedin.com/in/hussein-al-zuhile-7026011a5
+* **Medium:** https://medium.com/@husseinalzuhile
