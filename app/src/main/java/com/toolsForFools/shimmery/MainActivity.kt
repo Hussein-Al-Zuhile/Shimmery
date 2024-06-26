@@ -1,5 +1,6 @@
 package com.toolsForFools.shimmery
 
+import android.content.res.Resources.Theme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ShimmeryTheme {
+                MaterialTheme.colorScheme.background
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier
