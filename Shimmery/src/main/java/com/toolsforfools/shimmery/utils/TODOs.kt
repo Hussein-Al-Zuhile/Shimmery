@@ -5,3 +5,4 @@ package com.toolsforfools.shimmery.utils
 // TODO: Adding shimmer colors modification
 // TODO: Adding special layouting to the shimmer (width,height,padding).
 // TODO: Adding special shimmering for multiline text.
+// TODO: Adding image placeholder type to shimmer type
