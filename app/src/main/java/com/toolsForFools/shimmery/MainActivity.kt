@@ -15,7 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.toolsForFools.shimmery.ui.theme.ShimmeryTheme
-import com.toolsforfools.shimmery.shimmer
+import com.toolsforfools.shimmery.shimmerIndividual.shimmer
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,8 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .shimmer(false) {
                             shape = CircleShape
-                        }.background(Color.Red),
+                        }
+                        .background(Color.Red),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting("Android")

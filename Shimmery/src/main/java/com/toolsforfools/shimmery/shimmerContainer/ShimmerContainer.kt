@@ -45,7 +45,7 @@ internal val LocalShimmeringContainerInfo = compositionLocalOf<ShimmerContainerI
 }
 
 @Composable
-fun ShimmerContainer(
+public fun ShimmerContainer(
     enabled: Boolean,
     modifier: Modifier = Modifier,
     shimmerConfiguration: ShimmerConfiguration? = null,
@@ -95,7 +95,7 @@ fun ShimmerContainer(
 
 @Preview
 @Composable
-fun ShimmerContainerPreview() {
+private fun ShimmerContainerPreview() {
     Box(Modifier.padding(30.dp)) {
         ShimmerContainer(enabled = true) {
             Column {

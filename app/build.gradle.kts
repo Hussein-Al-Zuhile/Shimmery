@@ -68,5 +68,5 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.0.0")
+    implementation("io.github.hussein-al-zuhile:Shimmery:1.2.1")
 }

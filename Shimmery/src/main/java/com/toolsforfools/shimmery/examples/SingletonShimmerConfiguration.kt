@@ -21,7 +21,7 @@ import com.toolsforfools.shimmery.shimmerConfiguration.shimmerConfiguration
 import com.toolsforfools.shimmery.shimmerIndividual.shimmer
 
 @Composable
-fun SingletonExample() {
+private fun SingletonExample() {
     CompositionLocalProvider(
         LocalShimmerConfiguration provides shimmerConfiguration {
             // Some configuration updates

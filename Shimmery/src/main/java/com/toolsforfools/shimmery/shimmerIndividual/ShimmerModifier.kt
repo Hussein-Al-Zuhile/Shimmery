@@ -37,7 +37,7 @@ import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfiguration
 import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerType
 
 @Composable
-fun Modifier.shimmer(
+public fun Modifier.shimmer(
     enabled: Boolean,
     shimmerConfigurationBuilder: @Composable (ShimmerConfiguration.() -> Unit)
 ): Modifier {
@@ -52,7 +52,7 @@ fun Modifier.shimmer(
 }
 
 @Composable
-fun Modifier.shimmer(
+public fun Modifier.shimmer(
     enabled: Boolean,
     shimmerConfiguration: ShimmerConfiguration = LocalShimmerConfiguration.current
 ): Modifier {
