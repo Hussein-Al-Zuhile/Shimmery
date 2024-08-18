@@ -18,15 +18,24 @@ import androidx.compose.ui.layout.positionInWindow
 import com.toolsforfools.shimmery.shimmerConfiguration.GradientType
 import com.toolsforfools.shimmery.shimmerConfiguration.LocalShimmerConfiguration
 import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfiguration
+import com.toolsforfools.shimmery.shimmerConfiguration.ShimmerConfigurationBuilder
 
 
+/**
+ * A modifier to shimmer a composable in a [ShimmerContainer]
+ * @param enabled if it's null it will use the value from [ShimmerContainer], otherwise it will use the value provided,
+ * This is helpful for partial shimmering if you want to shimmer only a part of the container (in case of two loading states exist).
+ * @param shimmerConfiguration configuration for the shimmer effect.
+ */
 @Composable
 public fun Modifier.shimmerInContainer(
     enabled: Boolean? = null,
     shimmerConfiguration: ShimmerConfiguration = LocalShimmerConfiguration.current
 ): Modifier {
+    val shimmerContainerInfo = LocalShimmeringContainerInformation.current
+    if (!(enabled ?: shimmerContainerInfo.enabled)) return this // Return if not enabled
 
-    val shimmerContainerInfo = LocalShimmeringContainerInfo.current
+
     val startOffset = shimmerContainerInfo.startOffset
     val containerPositionInWindow =
         shimmerContainerInfo.layoutCoordinates?.positionInWindow() ?: Offset.Zero
@@ -38,9 +47,8 @@ public fun Modifier.shimmerInContainer(
 
     val positionInContainer = positionInWindow - containerPositionInWindow
 
-    return this then shimmerInContainerModifierLogic(
+    return shimmerInContainerModifierLogic(
         shimmerConfiguration = shimmerConfiguration,
-        enabled = enabled ?: shimmerContainerInfo.enabled,
         gradientStartOffset = startOffset,
         positionInContainer = positionInContainer,
         alpha = shimmerContainerInfo.alpha
@@ -49,18 +57,25 @@ public fun Modifier.shimmerInContainer(
     }
 }
 
+/**
+ * A modifier to shimmer a child composable of a [ShimmerContainer] (direct or indirect)
+ * @param enabled if it's null it will use the value from [ShimmerContainer], otherwise it will use the value provided,
+ * This is helpful for partial shimmering if you want to shimmer only a part of the container (in case of two loading states exist).
+ * @param buildingBlock a lambda to configure the shimmer effect.
+ */
 @Composable
 public fun Modifier.shimmerInContainer(
     enabled: Boolean? = null,
-    shimmerConfigurationBuilder: @Composable (ShimmerConfiguration.() -> Unit),
+    buildingBlock: (ShimmerConfigurationBuilder.() -> Unit),
 ): Modifier {
+    val shimmerContainerInfo = LocalShimmeringContainerInformation.current
+    if (!(enabled ?: shimmerContainerInfo.enabled)) return this
 
-    val shimmerConfiguration = LocalShimmerConfiguration.current.apply {
-        this.shimmerConfigurationBuilder()
+
+    val shimmerConfiguration = with(ShimmerConfigurationBuilder().apply(buildingBlock)) {
+        LocalShimmerConfiguration.current.copyAndEdit()
     }
 
-
-    val shimmerContainerInfo = LocalShimmeringContainerInfo.current
     val startOffset = shimmerContainerInfo.startOffset
     val containerPositionInWindow =
         shimmerContainerInfo.layoutCoordinates?.positionInWindow() ?: Offset.Zero
@@ -72,9 +87,8 @@ public fun Modifier.shimmerInContainer(
 
     val positionInContainer = positionInWindow - containerPositionInWindow
 
-    return this then shimmerInContainerModifierLogic(
+    return shimmerInContainerModifierLogic(
         shimmerConfiguration = shimmerConfiguration,
-        enabled = enabled ?: shimmerContainerInfo.enabled,
         gradientStartOffset = startOffset,
         positionInContainer = positionInContainer,
         alpha = shimmerContainerInfo.alpha
@@ -83,69 +97,67 @@ public fun Modifier.shimmerInContainer(
     }
 }
 
+/**
+ * This function handles the logic of adding shimmer effect, it choose the right brush if gradient enabled,
+ * And draw a gray rectangle for the available space and clip it with provided shape, with animated alpha
+ */
 @Composable
 private fun Modifier.shimmerInContainerModifierLogic(
     shimmerConfiguration: ShimmerConfiguration,
-    enabled: Boolean,
     gradientStartOffset: Float,
     positionInContainer: Offset,
     alpha: Float,
 ): Modifier {
 
-    return run {
-        if (enabled) {
-            clip(shimmerConfiguration.shape)
-        } else {
-            Modifier
-        }
-    }.drawWithCache {
+    return this
+        .clip(shimmerConfiguration.shape)
+        .drawWithCache {
 
-        val shimmerBrush =
-            with(shimmerConfiguration) {
-                if (shimmerType.withGradient) {
-                    val shimmerColors = listOf(
-                        Color.LightGray.copy(alpha = 0.8f),
-                        Color.LightGray.copy(alpha = 0.2f),
-                        Color.LightGray.copy(alpha = 0.8f),
-                    )
-                    when (gradientType) {
-                        GradientType.LINEAR -> {
-                            Brush.linearGradient(
-                                shimmerColors,
-                                start = Offset(
-                                    gradientStartOffset - positionInContainer.x,
-                                    gradientStartOffset - positionInContainer.y
-                                ),
-                                end = Offset(
-                                    gradientStartOffset * 2 - positionInContainer.x,
-                                    gradientStartOffset * 2 - positionInContainer.y,
+            val shimmerBrush =
+                with(shimmerConfiguration) {
+                    if (shimmerType.withGradient) {
+                        val shimmerColors = listOf(
+                            Color.LightGray.copy(alpha = 0.8f),
+                            Color.LightGray.copy(alpha = 0.2f),
+                            Color.LightGray.copy(alpha = 0.8f),
+                        )
+                        when (gradientType) {
+                            GradientType.LINEAR -> {
+                                Brush.linearGradient(
+                                    shimmerColors,
+                                    start = Offset(
+                                        gradientStartOffset - positionInContainer.x,
+                                        gradientStartOffset - positionInContainer.y
+                                    ),
+                                    end = Offset(
+                                        gradientStartOffset * 2 - positionInContainer.x,
+                                        gradientStartOffset * 2 - positionInContainer.y,
+                                    )
                                 )
-                            )
-                        }
+                            }
 
-                        GradientType.HORIZONTAL -> {
-                            Brush.horizontalGradient(
-                                shimmerColors,
-                                startX = gradientStartOffset - positionInContainer.x,
-                                endX = gradientStartOffset * 2f - positionInContainer.x
-                            )
-                        }
+                            GradientType.HORIZONTAL -> {
+                                Brush.horizontalGradient(
+                                    shimmerColors,
+                                    startX = gradientStartOffset - positionInContainer.x,
+                                    endX = gradientStartOffset * 2f - positionInContainer.x
+                                )
+                            }
 
-                        GradientType.VERTICAL -> {
-                            Brush.verticalGradient(
-                                shimmerColors,
-                                startY = gradientStartOffset - positionInContainer.y,
-                                endY = gradientStartOffset * 2f - positionInContainer.y
-                            )
+                            GradientType.VERTICAL -> {
+                                Brush.verticalGradient(
+                                    shimmerColors,
+                                    startY = gradientStartOffset - positionInContainer.y,
+                                    endY = gradientStartOffset * 2f - positionInContainer.y
+                                )
+                            }
                         }
+                    } else {
+                        null
                     }
-                } else {
-                    null
                 }
-            }
 
-        onDrawWithContent {
-            if (enabled) {
+            onDrawWithContent {
                 if (shimmerConfiguration.shimmerType.withGradient) {
                     drawRect(
                         shimmerBrush!!,
@@ -159,9 +171,6 @@ private fun Modifier.shimmerInContainerModifierLogic(
                         alpha = alpha,
                     )
                 }
-            } else {
-                drawContent()
             }
         }
-    }
 }

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     id("maven-publish")
     id("com.vanniktech.maven.publish") version "0.29.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 kotlin {

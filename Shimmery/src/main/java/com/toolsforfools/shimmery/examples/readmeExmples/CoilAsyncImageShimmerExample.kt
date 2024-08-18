@@ -1,4 +1,4 @@
-package com.toolsforfools.shimmery.examples
+package com.toolsforfools.shimmery.examples.readmeExmples
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.toolsforfools.shimmery.shimmerIndividual.shimmer
+import kotlinx.coroutines.delay
 
 @Composable
 private fun AsyncImageShimmeringExample() {
@@ -28,7 +30,11 @@ private fun AsyncImageShimmeringExample() {
                 .padding(16.dp)
         ) {
             var isLoadingImage by remember {
-                mutableStateOf(false)
+                mutableStateOf(true)
+            }
+            LaunchedEffect(key1 = Unit) {
+                delay(3000)
+                isLoadingImage = false
             }
             AsyncImage(
                 modifier = Modifier

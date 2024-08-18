@@ -56,10 +56,7 @@ fun GreetingPreview() {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Red)
-                .shimmer(false) {
-                    shape = CircleShape
-                },
+                .shimmer(true),
             color = MaterialTheme.colorScheme.background
         ) {
             Greeting("Android")

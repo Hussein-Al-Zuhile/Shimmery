@@ -1,4 +1,4 @@
-package com.toolsforfools.shimmery.examples
+package com.toolsforfools.shimmery.examples.readmeExmples
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
