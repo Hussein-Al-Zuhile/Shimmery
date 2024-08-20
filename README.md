@@ -122,6 +122,8 @@ Image(
 ```
 ### How the overriding of `LocalShimmerConfiguration` works:
 ![image](https://github.com/user-attachments/assets/154db37e-f096-45da-a682-afe3adc4a45e)
+### Documentation:
+You can find the APIs documentation [here](https://hussein-al-zuhile.github.io/Shimmery/) 
 
 
 ## Feedback and Stars 🌟
