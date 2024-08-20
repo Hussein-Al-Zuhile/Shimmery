@@ -9,21 +9,11 @@ Latest version: [![](https://jitpack.io/v/Hussein-Al-Zuhile/Shimmery.svg)](https
 
 To integrate Shimmery into your Android project, follow these steps:
 
-1. Add Jitpack.io repository to your repositories if it's not exist; in your `settings.gradle.kts`:
-    ```gradle
-    dependencyResolutionManagement {
-		 repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-		 repositories {
-		    mavenCentral()
-		    maven { url = URI("https://jitpack.io") }
-		 }
-    }
-    ```
-2. Add the following dependency in your app's `build.gradle.kts`:
+Add the following dependency in your app's `build.gradle.kts`:
 
-    ```gradle
-    implementation("com.github.Hussein-Al-Zuhile:Shimmery:1.2.1")
-    ```
+```gradle
+    implementation("io.github.hussein-al-zuhile:Shimmery:1.2.1")
+```
 ## Usage
 
 Here's a simple example demonstrating what configurations you can edit in Shimmery:
@@ -97,6 +87,11 @@ Imagine a use-case where the screen has two network APIs, you can cover the two 
 You can do this by passing `enabled` parameter to `Modifier.shimmerInContainer` in the sections that override the container behavior.
 > **_NOTE:_**  This is also useful in pagination and image loading from a url use-cases.
 
+This image shows how this overriding works, null `enabled` means get the value from the nearest `ShimmerInContainer`.
+
+<img width="1080" alt="image" src="https://github.com/user-attachments/assets/1116d3a9-a2a6-4219-aff1-569855f75c81">
+
+
 This example dominstrate this use-case clearly:
 
 https://github.com/Hussein-Al-Zuhile/Shimmery/assets/43495888/9844b1d5-5bd1-4add-a55d-c1ea8102b2a3
@@ -125,6 +120,10 @@ Image(
     contentDescription = "Example image"
 )
 ```
+### How the overriding of `LocalShimmerConfiguration` works:
+![image](https://github.com/user-attachments/assets/154db37e-f096-45da-a682-afe3adc4a45e)
+
+
 ## Feedback and Stars 🌟
 * If you find Shimmery useful, we'd appreciate your feedback and a **star** on GitHub! Your support helps us improve and maintain the library.
 * **Give Feedback:** Share your thoughts, report issues, or suggest improvements [here](https://github.com/Hussein-Al-Zuhile/Shimmery/issues/new).
